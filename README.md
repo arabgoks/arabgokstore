@@ -1,3 +1,5 @@
+https://muhammad-hafizh47-arabgokstore.pbp.cs.ui.ac.id/
+
 1. - Membuat sebuah proyek django baru:
 Pertama-tama dalam membuat projek django baru, saya membuat repository github terlebih dahulu sesuai dengan nama aplikasi saya yaitu arabgokstore. Lalu, saya membuat direktori baru dan membuka cmd untuk mengaktifkan virtual environtment. Setelah itu, saya membuat file baru yaitu "requirements.txt" pada direktori yang sama dan melakukan instalasi terhadap apa yang ada pada isi file tersebut. Selesai instalasi, saya membuat proyek django baru dengan perintah "django-admin startproject arabgokstore .".
 - Membuat aplikasi dengan nama main pada proyek tersebut:
