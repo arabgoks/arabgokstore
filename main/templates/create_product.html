@@ -4,23 +4,26 @@
 {% endblock meta %}
 
 {% block content %}
-<div class="bg-gray-50 w-full min-h-screen">
+<div class="bg-[#F0DFDF] w-full min-h-screen">
+
+  <!-- Colorful header -->
+  <div class="bg-[#5F0000] text-white rounded-b-2xl shadow-sm">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <h1 class="text-4xl font-extrabold">Create New Product</h1>
+      <p class="mt-2 text-white/90">Share your football product details below</p>
+    </div>
+  </div>
+
   <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
     <!-- Back Navigation -->
     <div class="mb-6">
       <a href="{% url 'main:show_main' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-        ← Back to Product
+        ← Back to Products
       </a>
     </div>
-    
-    <!-- Form -->
+
+    <!-- Form card -->
     <div class="bg-white rounded-lg border border-gray-200 p-6 sm:p-8 form-style">
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">Create New Product</h1>
-        <p class="text-gray-600">Share your football product with the community</p>
-      </div>
-      
       <form method="POST" class="space-y-6">
         {% csrf_token %}
         {% for field in form %}
@@ -29,7 +32,7 @@
               {{ field.label }}
             </label>
             <div class="w-full">
-              {{ field }}
+                {{ field }}
             </div>
             {% if field.help_text %}
               <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
@@ -39,12 +42,12 @@
             {% endfor %}
           </div>
         {% endfor %}
-        
+
         <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
           <a href="{% url 'main:show_main' %}" class="order-2 sm:order-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors text-center">
             Cancel
           </a>
-          <button type="submit" class="order-1 sm:order-2 flex-1 bg-green-600 text-white px-6 py-3 rounded-md font-medium hover:bg-green-700 transition-colors">
+          <button type="submit" class="order-1 sm:order-2 flex-1 bg-red-700 text-white px-6 py-3 rounded-md font-medium hover:bg-red-800 transition-colors">
             Publish Product
           </button>
         </div>

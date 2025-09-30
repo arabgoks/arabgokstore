@@ -13,21 +13,25 @@ from main.models import Product
 
 @login_required(login_url='/login')
 def show_main(request):
-    filter_type = request.GET.get("filter", "all")  # default 'all'
+    products = Product.objects.all()
+    
+    # Filter berdasarkan tipe produk
+    filter_type = request.GET.get("filter", "All-Product")
+    if filter_type == "My-Product" and request.user.is_authenticated:
+        products = products.filter(user=request.user)
 
-    if filter_type == "all":
-        product_list = Product.objects.all()
-    else:
-        product_list = Product.objects.filter(user=request.user)
+    # Filter berdasarkan kategori
+    category = request.GET.get("category", "All-Categories")
+    if category != "All-Categories":
+        products = products.filter(category=category)
 
     context = {
-        'nama_aplikasi' : 'Arabgokstore',
+        'nama_aplikasi': 'Arabgokstore',
         'nama': 'Muhammad Hafizh',
         'kelas': 'PBP D',
-        'product_list': product_list,
+        'product_list': products,
         'last_login': request.COOKIES.get('last_login', 'Never')
     }
-
     return render(request, "main.html", context)
 
 def create_product(request):

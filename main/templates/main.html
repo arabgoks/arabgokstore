@@ -17,20 +17,60 @@
     </div>
 
     <!-- Filter Section -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 bg-white rounded-lg border border-gray-200 p-4">
-      <div class="flex space-x-3 mb-4 sm:mb-0">
-        <a href="?" class="{% if request.GET.filter == 'all' or not request.GET.filter  %} bg-green-600 text-white{% else %}bg-white text-gray-700 border border-gray-300{% endif %} px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white">
-          All Product
-        </a>
-        <a href="?filter=my" class="{% if request.GET.filter == 'my' %} bg-green-600 text-white{% else %}bg-white text-gray-700 border border-gray-300{% endif %} px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white">
-          My Product
-        </a>
+    <div class="bg-[#F0DFDF] shadow-sm rounded-lg border border-gray-100 p-3 mb-6">
+      <div class="flex flex-col sm:flex-row gap-4">
+          <!-- Product Type Filter Box -->
+          <div class="w-48">
+              <h3 class="font-medium mb-2">Product Type</h3>
+              <select onchange="window.location.href=this.value" class="w-full p-1.5 text-sm border border-gray-300 rounded-md">
+                  <option value="?filter=All-Product{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" 
+                      {% if request.GET.filter == 'All-Product' or not request.GET.filter %}selected{% endif %}>
+                      All Product
+                  </option>
+                  <option value="?filter=My-Product{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" 
+                      {% if request.GET.filter == 'My-Product' %}selected{% endif %}>
+                      My Product
+                  </option>
+              </select>
+          </div>
+
+          <!-- Category Filter Box -->
+          <div class="w-48">
+              <h3 class="font-medium mb-2">Categories</h3>
+              <select onchange="window.location.href=this.value" class="w-full p-1.5 text-sm border border-gray-300 rounded-md">
+                  <option value="?category=All-Categories{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}" 
+                      {% if request.GET.category == 'All-Categories' or not request.GET.category %}selected{% endif %}>
+                      All Categories
+                  </option>
+                  <option value="?category=jersey{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}" 
+                      {% if request.GET.category == 'jersey' %}selected{% endif %}>
+                      Jersey
+                  </option>
+                  <option value="?category=sepatu{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}" 
+                      {% if request.GET.category == 'sepatu' %}selected{% endif %}>
+                      Sepatu
+                  </option>
+                  <option value="?category=aksesoris{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}" 
+                      {% if request.GET.category == 'aksesoris' %}selected{% endif %}>
+                      Aksesoris
+                  </option>
+                  <option value="?category=bola{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}" 
+                      {% if request.GET.category == 'bola' %}selected{% endif %}>
+                      Bola
+                  </option>
+                  <option value="?category=jaket{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}" 
+                      {% if request.GET.category == 'jaket' %}selected{% endif %}>
+                      Jaket
+                  </option>
+              </select>
+          </div>
+
+          {% if user.is_authenticated %}
+          <div class="text-sm text-gray-500 self-center ml-auto">
+              Last login: {{ last_login }}
+          </div>
+          {% endif %}
       </div>
-      {% if user.is_authenticated %}
-        <div class="text-sm text-gray-500">
-          Last login: {{ last_login }}
-        </div>
-      {% endif %}
     </div>
 
     <!-- Product Grid -->
