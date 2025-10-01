@@ -63,21 +63,18 @@
     <!-- Action Buttons -->
     {% if user.is_authenticated and product.user == user %}
       <div class="mt-auto pt-4 border-t border-red-100 flex items-center justify-between">
-        <a href="{% url 'main:show_product' product.id %}"
-          class="inline-block text-white bg-red-700 hover:bg-red-800 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+        <a href="{% url 'main:show_product' product.id %}" class="inline-block text-white bg-red-700 hover:bg-red-800 px-4 py-2 rounded-md text-sm font-medium transition-colors">
           View details
         </a>
         <div class="flex items-center space-x-2">
           <form method="get" action="{% url 'main:edit_product' product.id %}">
-            <button type="submit"
-                    class="px-4 py-2 rounded-md text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
+            <button type="submit" class="px-4 py-2 rounded-md text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
               Edit
             </button>
           </form>
           <form method="post" action="{% url 'main:delete_product' product.id %}">
             {% csrf_token %}
-            <button type="submit"
-                    class="px-4 py-2 rounded-md text-sm font-medium bg-red-800 text-white hover:bg-red-900 transition-colors">
+            <button type="submit" class="px-4 py-2 rounded-md text-sm font-medium bg-red-800 text-white hover:bg-red-900 transition-colors">
               Delete
             </button>
           </form>

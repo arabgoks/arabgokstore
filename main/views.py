@@ -15,15 +15,24 @@ from main.models import Product
 def show_main(request):
     products = Product.objects.all()
     
-    # Filter berdasarkan tipe produk
+    #filter berdasarkan tipe produk
     filter_type = request.GET.get("filter", "All-Product")
     if filter_type == "My-Product" and request.user.is_authenticated:
         products = products.filter(user=request.user)
+    
+    #agar saat diklik apparel, jersey dan jaket ikut terfilter
+    CATEGORY_GROUPS = {
+        'apparel': ['jersey', 'jaket']
+    }
 
-    # Filter berdasarkan kategori
+    #filter berdasarkan kategori
     category = request.GET.get("category", "All-Categories")
-    if category != "All-Categories":
-        products = products.filter(category=category)
+    if category and category != "All-Categories":
+        category = category.strip().lower()
+        if category in CATEGORY_GROUPS:
+            products = products.filter(category__in=CATEGORY_GROUPS[category])
+        else:
+            products = products.filter(category=category)
 
     context = {
         'nama_aplikasi': 'Arabgokstore',

@@ -1,6 +1,7 @@
 <nav class="fixed top-0 left-0 w-full bg-[#5F0000] border-b border-transparent shadow-sm z-50">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
+      <!-- Brand -->
       <div class="flex items-center">
         <h1 class="text-xl font-semibold">
           <span class="text-rose-300">Arabgok</span><span class="text-white">Store</span>
@@ -9,8 +10,25 @@
 
       <!-- Desktop Navigation -->
       <div class="hidden md:flex items-center space-x-8">
-        <a href="/" class="text-white/90 hover:text-white font-medium transition-colors">Home</a>
+        <a href="{% url 'main:show_main' %}" class="text-white/90 hover:text-white font-medium transition-colors">Home</a>
         <a href="{% url 'main:create_product' %}" class="text-white/90 hover:text-white font-medium transition-colors">Create Product</a>
+
+        {# Kategori #}
+        {% with current=request.GET.category %}
+          {# Apparel -> gabungan antara jersey dan jaket #}
+          <a href="{% url 'main:show_main' %}?category=Apparel" class="font-medium {% if current == 'Apparel' or current == 'Jersey' or current == 'Jaket' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
+            Apparel
+          </a>
+          <a href="{% url 'main:show_main' %}?category=Sepatu" class="font-medium {% if current == 'Sepatu' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
+            Sepatu
+          </a>
+          <a href="{% url 'main:show_main' %}?category=Aksesoris" class="font-medium {% if current == 'Aksesoris' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
+            Aksesoris
+          </a>
+          <a href="{% url 'main:show_main' %}?category=Bola" class="font-medium {% if current == 'Bola' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
+            Bola
+          </a>
+        {% endwith %}
       </div>
 
       <!-- Desktop User Section -->
@@ -27,40 +45,57 @@
         {% endif %}
       </div>
 
-      <!-- Mobile Menu Button (ikon saja, tanpa JS) -->
-      <div class="md:hidden flex items-center">
-        <div class="p-2 text-white/90">
-          <div class="w-6 h-6 flex flex-col justify-center items-center">
-            <span class="bg-current block h-0.5 w-6 rounded-sm"></span>
-            <span class="bg-current block h-0.5 w-6 rounded-sm my-0.5"></span>
-            <span class="bg-current block h-0.5 w-6 rounded-sm"></span>
-          </div>
+      <!-- Hamburger -->
+      <label for="nav-toggle" class="md:hidden p-2 cursor-pointer text-white/90 hover:text-white">
+        <div class="w-6 h-6 flex flex-col justify-center">
+          <span class="bg-current block h-0.5 w-6 rounded-sm"></span>
+          <span class="bg-current block h-0.5 w-6 rounded-sm my-1"></span>
+          <span class="bg-current block h-0.5 w-6 rounded-sm"></span>
         </div>
-      </div>
+      </label>
     </div>
   </div>
 
-  <!-- Mobile Menu (tetap disembunyikan tanpa JS) -->
-  <div class="mobile-menu hidden md:hidden bg-[#5F0000] border-t border-[#7A0000]">
-    <div class="px-6 py-4 space-y-4">
-      <div class="space-y-1">
-        <a href="/" class="block text-white/90 hover:text-white font-medium py-3 transition-colors">Home</a>
-        <a href="{% url 'main:create_product' %}" class="block text-white/90 hover:text-white font-medium py-3 transition-colors">Create Product</a>
-      </div>
-      <div class="border-t border-[#7A0000] pt-4">
-        {% if user.is_authenticated %}
-          <div class="mb-4">
-            <div class="font-medium text-white">{{ name|default:user.username }}</div>
-            <div class="text-sm text-white/80">{{ npm|default:"Student" }} - {{ class|default:"Class" }}</div>
-          </div>
-          <a href="{% url 'main:logout' %}" class="block text-rose-300 hover:text-white font-medium py-3 transition-colors">Logout</a>
-        {% else %}
-          <div class="space-y-3">
-            <a href="{% url 'main:login' %}" class="block text-white/90 hover:text-white font-medium py-3 transition-colors">Login</a>
-            <a href="{% url 'main:register' %}" class="block bg-rose-400 hover:bg-rose-500 text-white font-medium py-3 px-4 rounded text-center transition-colors">Register</a>
-          </div>
-        {% endif %}
-      </div>
+
+  <input id="nav-toggle" type="checkbox" class="peer hidden" />
+
+  <!-- Mobile Menu -->
+  <div class="hidden peer-checked:block md:hidden bg-[#5F0000] border-t border-[#7A0000]">
+    <div class="px-6 py-4 space-y-1">
+      <a href="{% url 'main:show_main' %}" class="block text-white/90 hover:text-white font-medium py-3 transition-colors">Home</a>
+      <a href="{% url 'main:create_product' %}" class="block text-white/90 hover:text-white font-medium py-3 transition-colors">Create Product</a>
+
+      {% with current=request.GET.category %}
+        <a href="{% url 'main:show_main' %}?category=Apparel"
+          class="block py-3 font-medium {% if current == 'Apparel' or current == 'Jersey' or current == 'Jaket' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
+          Apparel
+        </a>
+        <a href="{% url 'main:show_main' %}?category=Sepatu"
+          class="block py-3 font-medium {% if current == 'Sepatu' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
+          Sepatu
+        </a>
+        <a href="{% url 'main:show_main' %}?category=Aksesoris"
+          class="block py-3 font-medium {% if current == 'Aksesoris' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
+          Aksesoris
+        </a>
+        <a href="{% url 'main:show_main' %}?category=Bola"
+          class="block py-3 font-medium {% if current == 'Bola' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
+          Bola
+        </a>
+      {% endwith %}
+
+      <div class="my-3 border-t border-[#7A0000]"></div>
+
+      {% if user.is_authenticated %}
+        <div class="py-2">
+          <div class="font-medium text-white">{{ name|default:user.username }}</div>
+          <div class="text-sm text-white/80">{{ npm|default:"Student" }} - {{ class|default:"Class" }}</div>
+        </div>
+        <a href="{% url 'main:logout' %}" class="block text-rose-300 hover:text-white font-medium py-3 transition-colors">Logout</a>
+      {% else %}
+        <a href="{% url 'main:login' %}" class="block text-white/90 hover:text-white font-medium py-3 transition-colors">Login</a>
+        <a href="{% url 'main:register' %}" class="block bg-rose-400 hover:bg-rose-500 text-white font-medium py-3 px-4 rounded text-center transition-colors mt-2">Register</a>
+      {% endif %}
     </div>
   </div>
 </nav>
