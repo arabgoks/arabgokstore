@@ -11,24 +11,24 @@
       <!-- Desktop Navigation -->
       <div class="hidden md:flex items-center space-x-8">
         <a href="{% url 'main:show_main' %}" class="text-white/90 hover:text-white font-medium transition-colors">Home</a>
-        <a href="{% url 'main:create_product' %}" class="text-white/90 hover:text-white font-medium transition-colors">Create Product</a>
 
-        {# Kategori #}
-        {% with current=request.GET.category %}
-          {# Apparel -> gabungan antara jersey dan jaket #}
-          <a href="{% url 'main:show_main' %}?category=Apparel" class="font-medium {% if current == 'Apparel' or current == 'Jersey' or current == 'Jaket' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
-            Apparel
-          </a>
-          <a href="{% url 'main:show_main' %}?category=Sepatu" class="font-medium {% if current == 'Sepatu' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
-            Sepatu
-          </a>
-          <a href="{% url 'main:show_main' %}?category=Aksesoris" class="font-medium {% if current == 'Aksesoris' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
-            Aksesoris
-          </a>
-          <a href="{% url 'main:show_main' %}?category=Bola" class="font-medium {% if current == 'Bola' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
-            Bola
-          </a>
-        {% endwith %}
+        <!-- Kategori -->
+        <a href="#" data-cat-link="apparel"
+          class="cat-link text-white/90 hover:text-white font-medium transition-colors">
+          Apparel
+        </a>
+        <a href="#" data-cat-link="sepatu"
+          class="cat-link text-white/90 hover:text-white font-medium transition-colors">
+          Sepatu
+        </a>
+        <a href="#" data-cat-link="aksesoris"
+          class="cat-link text-white/90 hover:text-white font-medium transition-colors">
+          Aksesoris
+        </a>
+        <a href="#" data-cat-link="bola"
+          class="cat-link text-white/90 hover:text-white font-medium transition-colors">
+          Bola
+        </a>
       </div>
 
       <!-- Desktop User Section -->
@@ -63,26 +63,12 @@
   <div class="hidden peer-checked:block md:hidden bg-[#5F0000] border-t border-[#7A0000]">
     <div class="px-6 py-4 space-y-1">
       <a href="{% url 'main:show_main' %}" class="block text-white/90 hover:text-white font-medium py-3 transition-colors">Home</a>
-      <a href="{% url 'main:create_product' %}" class="block text-white/90 hover:text-white font-medium py-3 transition-colors">Create Product</a>
 
-      {% with current=request.GET.category %}
-        <a href="{% url 'main:show_main' %}?category=Apparel"
-          class="block py-3 font-medium {% if current == 'Apparel' or current == 'Jersey' or current == 'Jaket' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
-          Apparel
-        </a>
-        <a href="{% url 'main:show_main' %}?category=Sepatu"
-          class="block py-3 font-medium {% if current == 'Sepatu' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
-          Sepatu
-        </a>
-        <a href="{% url 'main:show_main' %}?category=Aksesoris"
-          class="block py-3 font-medium {% if current == 'Aksesoris' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
-          Aksesoris
-        </a>
-        <a href="{% url 'main:show_main' %}?category=Bola"
-          class="block py-3 font-medium {% if current == 'Bola' %}text-white{% else %}text-white/90 hover:text-white{% endif %}">
-          Bola
-        </a>
-      {% endwith %}
+      <!-- Kategori -->
+      <a href="#" data-cat-link="apparel"  class="cat-link block py-3 text-white/90 hover:text-white font-medium">Apparel</a>
+      <a href="#" data-cat-link="sepatu"   class="cat-link block py-3 text-white/90 hover:text-white font-medium">Sepatu</a>
+      <a href="#" data-cat-link="aksesoris" class="cat-link block py-3 text-white/90 hover:text-white font-medium">Aksesoris</a>
+      <a href="#" data-cat-link="bola"     class="cat-link block py-3 text-white/90 hover:text-white font-medium">Bola</a>
 
       <div class="my-3 border-t border-[#7A0000]"></div>
 

@@ -14,7 +14,6 @@
 
   <div class="relative max-w-md w-full">
     <div class="bg-neutral-900/85 backdrop-blur-sm rounded-lg border border-neutral-700 p-6 sm:p-8 form-style text-gray-100">
-      <!-- ...existing code from original register.html starting from <div class="text-center mb-8"> -->
       <div class="text-center mb-8">
         <h2 class="text-2xl font-semibold text-white mb-2">Join Us</h2>
         <p class="text-gray-300">Create your User account</p>
@@ -120,4 +119,61 @@
     </div>
   </div>
 </div>
+
+<script>
+(function(){
+  const form = document.querySelector('form');
+  const btn  = form?.querySelector('button[type="submit"]');
+
+  let errorBox = document.createElement('div');
+  errorBox.className = 'mb-6 space-y-2';
+  form.parentNode.insertBefore(errorBox, form);
+
+  function renderErrors(json){
+    errorBox.innerHTML = '';
+    const errs = json?.errors || {};
+    Object.keys(errs).forEach(field => {
+      (errs[field] || []).forEach(e => {
+        const dv = document.createElement('div');
+        dv.className = 'px-4 py-3 rounded-md text-sm border bg-red-50 border-red-200 text-red-700';
+        dv.textContent = (field === '__all__' ? '' : `${field}: `) + (e.message || 'Invalid');
+        errorBox.appendChild(dv);
+      });
+    });
+  }
+
+  form?.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    errorBox.innerHTML = '';
+    try{
+      btn.disabled = true;
+      btn.classList.add('opacity-70','cursor-not-allowed');
+
+      const resp = await fetch("{% url 'main:register' %}", {
+        method: "POST",
+        body: new FormData(form),
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
+
+      if(!resp.ok){
+        const data = await resp.json().catch(()=>({}));
+        renderErrors(data);
+        showToast('Register failed', 'Perbaiki error dan coba lagi.', 'error');
+        return;
+      }
+
+      const data = await resp.json();
+      showToast('Account created', 'Silakan login.', 'success');
+      setTimeout(()=>{ window.location.href = data.redirect_url || "{% url 'main:login' %}"; }, 700);
+    }catch(err){
+      console.error(err);
+      showToast('Error', 'Terjadi kesalahan tak terduga.', 'error');
+    }finally{
+      btn.disabled = false;
+      btn.classList.remove('opacity-70','cursor-not-allowed');
+    }
+  });
+})();
+</script>
+
 {% endblock content %}

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block meta %}
-<title>{{ product.title }} - ArabgokStore</title>
+<title>Product Detail - ArabgokStore</title>
 {% endblock meta %}
 
 {% block content %}
@@ -22,89 +22,202 @@
       </a>
     </div>
 
-    <!-- Card -->
-    <article class="bg-white rounded-lg border border-gray-200 overflow-hidden p-6 sm:p-8">
+    <!-- Loading -->
+    <div id="loading-state" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
+      <svg class="animate-spin h-8 w-8 text-rose-600 inline-block" viewBox="0 0 24 24" fill="none">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+      </svg>
+      <p class="text-gray-600 mt-3">Loading product detail...</p>
+    </div>
+
+    <!-- Error -->
+    <div id="error-state" class="hidden bg-white rounded-lg border border-red-200 p-12 text-center">
+      <div class="text-red-500 text-5xl mb-3">⚠️</div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">Failed to load product</h3>
+      <p class="text-gray-500">Please try again later.</p>
+    </div>
+
+    <!-- Article -->
+    <article id="article-content" class="hidden bg-white rounded-lg border border-gray-200 overflow-hidden p-6 sm:p-8">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Left: Image -->
-        <div>
-          {% if product.thumbnail %}
-            <img src="{{ product.thumbnail }}" alt="{{ product.title }}"
-                 class="w-full h-72 sm:h-96 object-cover rounded-lg">
-          {% else %}
-            <div class="w-full h-72 sm:h-96 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-              No image
-            </div>
-          {% endif %}
+        <div id="image-wrap">
+          <img id="featured-image" src="" alt="" class="w-full h-72 sm:h-96 object-cover rounded-lg hidden">
+          <div id="no-image" class="w-full h-72 sm:h-96 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+            No image
+          </div>
         </div>
 
         <!-- Right: Details -->
         <div class="space-y-5">
-          <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
-            {{ product.title }}
-          </h2>
+          <h2 id="product-title" class="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">Loading…</h2>
 
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-green-600 text-white">
-              {{ product.get_category_display }}
-            </span>
-            {% if product.is_featured %}
-              <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800">
-                Featured
-              </span>
-            {% endif %}
-            {% if product.is_product_hot %}
-              <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-red-100 text-red-800">
-                Hot
-              </span>
-            {% endif %}
+          <div id="badges-container" class="flex flex-wrap items-center gap-2">
+            <!-- badges via JS -->
           </div>
 
           <!-- Price -->
           <div>
             <div class="text-sm text-gray-500">Price</div>
-            <div class="text-2xl font-semibold text-gray-900">Rp{{ product.price }}</div>
+            <div id="product-price" class="text-2xl font-semibold text-gray-900">-</div>
           </div>
 
           <!-- Stock / Brand / Rating -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <div class="text-sm text-gray-500">Stock</div>
-              <div class="font-medium text-gray-900">{{ product.stock }}</div>
+              <div id="product-stock" class="font-medium text-gray-900">-</div>
             </div>
-            {% if product.brand %}
             <div>
               <div class="text-sm text-gray-500">Brand</div>
-              <div class="font-medium text-gray-900">{{ product.brand }}</div>
+              <div id="product-brand" class="font-medium text-gray-900">-</div>
             </div>
-            {% endif %}
-            {% if product.rating %}
             <div>
               <div class="text-sm text-gray-500">Rating</div>
-              <div class="font-medium text-gray-900">{{ product.rating }}</div>
+              <div id="product-rating" class="font-medium text-gray-900">-</div>
             </div>
-            {% endif %}
           </div>
 
           <!-- Description -->
-          <div>
-            <div class="text-gray-700 leading-relaxed whitespace-pre-line">
-              {{ product.description }}
-            </div>
-          </div>
+          <div id="product-desc" class="text-gray-700 leading-relaxed whitespace-pre-line"></div>
 
           <!-- Meta -->
           <div class="text-sm text-gray-500 flex flex-wrap gap-4 pt-2">
-            {% if product.created_at %}
-              <time datetime="{{ product.created_at|date:'c' }}">{{ product.created_at|date:"M j, Y g:i A" }}</time>
-            {% endif %}
-            <span>{{ product.product_views }} views</span>
-            {% if product.user %}
-              <span>Author: {{ product.user.username }}</span>
-            {% endif %}
+            <time id="product-date"></time>
+            <span id="product-views"></span>
+            <span id="product-author"></span>
           </div>
         </div>
       </div>
     </article>
   </div>
 </div>
+
+<script>
+  // Configuration
+  const PRODUCT_ID = "{{ product.id }}";
+  const PRODUCT_ENDPOINT = `{% url 'main:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', PRODUCT_ID);
+
+  // DOM Elements
+  const loadingState = document.getElementById('loading-state');
+  const errorState   = document.getElementById('error-state');
+  const article      = document.getElementById('article-content');
+
+  const badges       = document.getElementById('badges-container');
+  const titleEl      = document.getElementById('product-title');
+  const priceEl      = document.getElementById('product-price');
+  const stockEl      = document.getElementById('product-stock');
+  const brandEl      = document.getElementById('product-brand');
+  const ratingEl     = document.getElementById('product-rating');
+  const descEl       = document.getElementById('product-desc');
+  const dateEl       = document.getElementById('product-date');
+  const viewsEl      = document.getElementById('product-views');
+  const authorEl     = document.getElementById('product-author');
+
+  const imgEl        = document.getElementById('featured-image');
+  const noImgEl      = document.getElementById('no-image');
+
+  // Show/hide page sections
+  function showState(state) {
+    loadingState.classList.toggle('hidden', state !== 'loading');
+    errorState.classList.toggle('hidden',   state !== 'error');
+    article.classList.toggle('hidden',      state !== 'ready');
+  }
+
+  function rupiah(x) {
+    if (x == null) return '-';
+    const s = Number(x).toLocaleString('id-ID');
+    return 'Rp' + s;
+  }
+
+  // Get readable category name
+  function categoryLabel(code) {
+    const map = {
+      jersey: 'Jersey',
+      sepatu: 'Sepatu',
+      jaket: 'Jaket',
+      aksesoris: 'Aksesoris',
+      bola: 'Bola',
+    };
+    return map[code?.toLowerCase()] || code;
+  }
+
+  // Render Product Detail
+  function renderProduct(p) {
+    // Title & document title
+    titleEl.textContent = p.name || 'Unnamed Product';
+    document.title = `${p.name || 'Product'} - ArabgokStore`;
+
+    // Badges
+    badges.innerHTML = '';
+    const cat = document.createElement('span');
+    cat.className = 'inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-green-600 text-white';
+    cat.textContent = categoryLabel(p.category);
+    badges.appendChild(cat);
+
+    if (p.is_featured) {
+      const featured = document.createElement('span');
+      featured.className = 'inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800';
+      featured.textContent = 'Featured';
+      badges.appendChild(featured);
+    }
+    if ((p.product_views || 0) > 20) {
+      const hot = document.createElement('span');
+      hot.className = 'inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-red-100 text-red-800';
+      hot.textContent = 'Hot';
+      badges.appendChild(hot);
+    }
+
+    // Image
+    if (p.thumbnail) {
+      imgEl.src = p.thumbnail;
+      imgEl.alt = p.name || '';
+      imgEl.classList.remove('hidden');
+      noImgEl.classList.add('hidden');
+    } else {
+      imgEl.classList.add('hidden');
+      noImgEl.classList.remove('hidden');
+    }
+
+    // Price / Stock / Brand / Rating
+    priceEl.textContent  = rupiah(p.price);
+    stockEl.textContent  = (p.stock != null ? p.stock : '-');
+    brandEl.textContent  = (p.brand || '-');
+    ratingEl.textContent = (p.rating != null ? p.rating : '-');
+
+    // Description
+    descEl.textContent = p.description || '';
+
+    // Meta
+    if (p.created_at) {
+      const d = new Date(p.created_at);
+      dateEl.textContent = d.toLocaleString('en-US', {
+        year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'
+      });
+    } else {
+      dateEl.textContent = '';
+    }
+    viewsEl.textContent  = `${p.product_views || 0} views`;
+    authorEl.textContent = `Author: ${p.user_username || 'Anonymous'}`;
+  }
+
+  // Fetch Product Detail
+  async function loadProductDetail() {
+    try {
+      showState('loading');
+      const res = await fetch(PRODUCT_ENDPOINT, { headers: { 'Accept': 'application/json' }});
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      renderProduct(data);
+      showState('ready');
+    } catch (e) {
+      console.error(e);
+      showState('error');
+    }
+  }
+
+  // Initialize page
+  loadProductDetail();
+</script>
 {% endblock content %}

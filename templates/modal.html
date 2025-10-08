@@ -1,0 +1,228 @@
+<!-- ========== Create / Edit Product Modal ========== -->
+<div id="crudModal" class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800/50">
+  <div id="crudModalContent" class="bg-white rounded-lg shadow-lg w-11/12 sm:w-3/5 md:w-1/2 max-h-screen overflow-y-auto opacity-0 scale-95 transition">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b">
+      <div>
+        <h3 id="crudModalTitle" class="text-xl font-semibold text-gray-900">Create New Product</h3>
+        <p id="crudModalSubtitle" class="text-sm text-gray-600">Add a football product without leaving the page</p>
+      </div>
+      <button type="button" class="text-gray-400 hover:text-gray-700 p-1.5" onclick="hideModal()">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div class="px-6 py-4 space-y-4">
+      <form id="productUpsertForm">
+        <!-- hidden state -->
+        <input type="hidden" id="__mode" value="create">
+        <input type="hidden" id="__product_id" name="__product_id" value="">
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Name</label>
+          <input name="name" id="f_name" type="text" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2" required>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Description</label>
+          <textarea name="description" id="f_description" rows="3" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Category</label>
+            <select name="category" id="f_category" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2" required>
+              <option value="">Choose a category</option>
+              <option value="jersey">Jersey</option>
+              <option value="jaket">Jaket</option>
+              <option value="sepatu">Sepatu</option>
+              <option value="aksesoris">Aksesoris</option>
+              <option value="bola">Bola</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Brand</label>
+            <input name="brand" id="f_brand" type="text" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Price</label>
+            <input name="price" id="f_price" type="number" step="0.01" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Stock</label>
+            <input name="stock" id="f_stock" type="number" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Thumbnail URL</label>
+            <input name="thumbnail" id="f_thumbnail" type="url" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2">
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <input id="f_is_featured" name="is_featured" type="checkbox" class="w-4 h-4">
+          <label for="f_is_featured" class="ml-2 text-sm text-gray-900">Featured Product</label>
+        </div>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex flex-col sm:flex-row gap-3 p-6 border-t">
+      <button type="button" class="px-5 py-3 border border-gray-300 rounded-md" onclick="hideModal()">Cancel</button>
+      <button id="crudSubmitBtn" type="submit" form="productUpsertForm" class="flex-1 bg-red-700 text-white px-5 py-3 rounded-md hover:bg-red-800">
+        Create Product by AJAX
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Confirm Delete Modal ========== -->
+<div id="deleteModal" class="hidden fixed inset-0 z-[60] w-full flex items-center justify-center bg-gray-800/50">
+  <div id="deleteModalContent" class="bg-white rounded-lg shadow-lg w-[90%] sm:w-[420px] opacity-0 scale-95 transition">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b">
+      <h3 class="text-lg font-semibold text-gray-900">Delete Product</h3>
+      <button type="button" class="text-gray-400 hover:text-gray-700 p-1.5" onclick="hideDeleteModal()">✕</button>
+    </div>
+    <!-- Body -->
+    <div class="p-6">
+      <p class="text-gray-700">
+        Are you sure you want to delete
+        <span id="deleteName" class="font-semibold"></span>?
+      </p>
+      <input type="hidden" id="deleteId" value="">
+    </div>
+    <!-- Footer -->
+    <div class="flex gap-3 p-6 pt-0">
+      <button type="button" class="px-5 py-3 border border-gray-300 rounded-md" onclick="hideDeleteModal()">Cancel</button>
+      <button type="button" class="flex-1 bg-red-600 text-white px-5 py-3 rounded-md hover:bg-red-700" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showModal(mode='create', data=null) {
+    document.getElementById('__mode').value = mode;
+
+    const m = document.getElementById('crudModal');
+    const c = document.getElementById('crudModalContent');
+    const title = document.getElementById('crudModalTitle');
+    const subtitle = document.getElementById('crudModalSubtitle');
+    const submitBtn = document.getElementById('crudSubmitBtn');
+
+    if (mode === 'create') {
+      title.textContent = 'Create New Product';
+      subtitle.textContent = 'Add a football product without leaving the page';
+      submitBtn.textContent = 'Create Product by AJAX';
+      document.getElementById('__product_id').value = '';
+      document.getElementById('productUpsertForm').reset();
+      document.getElementById('f_is_featured').checked = false;
+    } else {
+      title.textContent = 'Edit Product';
+      subtitle.textContent = 'Update your football product';
+      submitBtn.textContent = 'Save Changes';
+      if (data) prefillForm(data);
+    }
+
+    m.classList.remove('hidden');
+    setTimeout(()=>{ c.classList.remove('opacity-0','scale-95'); c.classList.add('opacity-100','scale-100'); }, 50);
+  }
+
+  function hideModal() {
+    const m = document.getElementById('crudModal');
+    const c = document.getElementById('crudModalContent');
+    c.classList.remove('opacity-100','scale-100');
+    c.classList.add('opacity-0','scale-95');
+    setTimeout(()=>{ m.classList.add('hidden'); },150);
+  }
+
+  function prefillForm(p){
+    document.getElementById('__product_id').value = p.id || '';
+    document.getElementById('f_name').value        = p.name || '';
+    document.getElementById('f_description').value = p.description || '';
+    document.getElementById('f_category').value    = (p.category || '').toLowerCase();
+    document.getElementById('f_price').value       = (p.price ?? '');
+    document.getElementById('f_stock').value       = (p.stock ?? '');
+    document.getElementById('f_brand').value       = (p.brand ?? '');
+    document.getElementById('f_thumbnail').value   = (p.thumbnail ?? '');
+    document.getElementById('f_is_featured').checked = !!p.is_featured;
+  }
+
+  document.getElementById('productUpsertForm')?.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const mode = document.getElementById('__mode').value;
+    const id   = document.getElementById('__product_id').value;
+    const body = new FormData(e.target);
+
+    try {
+      if (mode === 'create') {
+        const resp = await fetch("{% url 'main:add_product_entry_ajax' %}", { 
+          method: "POST", 
+          body 
+        });
+        if (!resp.ok) {
+          showToast('Create failed', 'Please try again', 'error');
+          return;
+        }
+        showToast('Product created', 'Your product has been added.', 'success');
+        document.dispatchEvent(new CustomEvent('productAdded'));
+      } else {
+        const resp = await fetch(
+          `{% url 'main:edit_product_entry_ajax' '00000000-0000-0000-0000-000000000000' %}`
+            .replace('00000000-0000-0000-0000-000000000000', id) + `?_=${Date.now()}`,
+          { method: "POST", body, cache: "no-store", headers: { "X-Requested-With": "XMLHttpRequest" } }
+        );
+        if (!resp.ok) {
+          showToast('Update failed', 'Unable to save changes', 'error');
+          return;
+        }
+        showToast('Product updated', 'Changes saved successfully.', 'success');
+        document.dispatchEvent(new CustomEvent('productUpdated'));
+      }
+    } catch (err) {
+      console.error(err);
+      if (typeof showToast === 'function') showToast('Action failed', '', 'error');
+    } finally {
+      hideModal();
+      if (mode === 'create') document.getElementById('productUpsertForm').reset();
+    }
+  });
+
+  function showDeleteModal(id, name) {
+    document.getElementById('deleteId').value = id;
+    document.getElementById('deleteName').textContent = name || 'this product';
+
+    const m = document.getElementById('deleteModal');
+    const c = document.getElementById('deleteModalContent');
+    m.classList.remove('hidden');
+    setTimeout(()=>{ c.classList.remove('opacity-0','scale-95'); c.classList.add('opacity-100','scale-100'); }, 20);
+  }
+
+  function hideDeleteModal() {
+    const m = document.getElementById('deleteModal');
+    const c = document.getElementById('deleteModalContent');
+    c.classList.remove('opacity-100','scale-100');
+    c.classList.add('opacity-0','scale-95');
+    setTimeout(()=>{ m.classList.add('hidden'); },150);
+  }
+
+  async function confirmDelete() {
+    const id = document.getElementById('deleteId').value;
+    try {
+      const url = `{% url 'main:delete_product_entry_ajax' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', id);
+      const resp = await fetch(url + `?_=${Date.now()}`, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        cache: 'no-store',
+      });
+      if (!resp.ok) throw new Error('Delete failed');
+      showToast('Product deleted', 'The product has been removed.', 'success');
+      document.dispatchEvent(new CustomEvent('productDeleted', { detail: { id } }));
+    } catch (err) {
+      showToast('Delete failed', 'Please try again.', 'error');
+    } finally {
+      hideDeleteModal();
+    }
+  }
+</script>

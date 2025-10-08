@@ -108,4 +108,64 @@
     </div>
   </div>
 </div>
+
+<script>
+(function(){
+  const form = document.querySelector('form');
+  const btn  = form?.querySelector('button[type="submit"]');
+
+  let errorBox = document.createElement('div');
+  errorBox.className = 'mb-6 space-y-2';
+  form.parentNode.insertBefore(errorBox, form);
+
+  function renderErrors(json){
+    errorBox.innerHTML = '';
+    const errs = json?.errors || {};
+    Object.keys(errs).forEach(field => {
+      (errs[field] || []).forEach(e => {
+        const dv = document.createElement('div');
+        dv.className = 'px-4 py-3 rounded-md text-sm border bg-red-50 border-red-200 text-red-700';
+        dv.textContent = (field === '__all__' ? '' : `${field}: `) + (e.message || 'Invalid');
+        errorBox.appendChild(dv);
+      });
+    });
+  }
+
+  form?.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    errorBox.innerHTML = '';
+
+    const originalText = btn.textContent;
+    try{
+      btn.disabled = true;
+      btn.classList.add('opacity-70','cursor-not-allowed');
+      btn.textContent = 'Signing In...';
+
+      const resp = await fetch("{% url 'main:login' %}", {
+        method: "POST",
+        body: new FormData(form),
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
+
+      if(!resp.ok){
+        const data = await resp.json().catch(()=>({}));
+        renderErrors(data);
+        showToast('Login failed', 'Periksa username/password Anda.', 'error');
+        return;
+      }
+
+      const data = await resp.json();
+      showToast('Welcome!', 'Berhasil masuk.', 'success');
+      setTimeout(()=>{ window.location.href = data.redirect_url || "{% url 'main:show_main' %}"; }, 600);
+    }catch(err){
+      console.error(err);
+      showToast('Error', 'Terjadi kesalahan.', 'error');
+    }finally{
+      btn.disabled = false;
+      btn.classList.remove('opacity-70','cursor-not-allowed');
+    }
+  });
+})();
+</script>
+
 {% endblock content %}

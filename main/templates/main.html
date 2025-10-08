@@ -16,53 +16,53 @@
       <p class="text-gray-600">Stay updated with the latest football products</p>
     </div>
 
+    <div class="mb-4">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <!-- KIRI -->
+        <div>
+          {% if user.is_authenticated %}
+          <button onclick="showModal()"
+            class="inline-flex items-center px-4 py-2 bg-white text-red-700 font-semibold outline outline-2 outline-red-700 rounded-md hover:bg-red-700 hover:text-white transition-colors">
+            Create Product by AJAX
+          </button>
+          {% endif %}
+        </div>
+
+        <!-- KANAN -->
+        <div class="flex items-center gap-3">
+          <button id="refresh-btn"
+            class="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span id="refresh-icon">⟳</span>
+            Refresh
+          </button>
+          <span id="last-sync" class="text-xs text-gray-500"></span>
+        </div>
+      </div>
+    </div>
+
     <!-- Filter Section -->
     <div class="bg-[#F0DFDF] shadow-sm rounded-lg border border-gray-100 p-3 mb-6">
       <div class="flex flex-col sm:flex-row gap-4">
           <!-- Product Type Filter Box -->
           <div class="w-48">
-              <h3 class="font-medium mb-2">Product Type</h3>
-              <select onchange="window.location.href=this.value" class="w-full p-1.5 text-sm border border-gray-300 rounded-md">
-                  <option value="?filter=All-Product{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" 
-                      {% if request.GET.filter == 'All-Product' or not request.GET.filter %}selected{% endif %}>
-                      All Product
-                  </option>
-                  <option value="?filter=My-Product{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" 
-                      {% if request.GET.filter == 'My-Product' %}selected{% endif %}>
-                      My Product
-                  </option>
-              </select>
+            <h3 class="font-medium mb-2">Product Type</h3>
+            <select id="type-select" class="w-full p-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-0">
+              <option value="All-Product">All Product</option>
+              <option value="My-Product">My Product</option>
+            </select>
           </div>
 
           <!-- Category Filter Box -->
           <div class="w-48">
-              <h3 class="font-medium mb-2">Categories</h3>
-              <select onchange="window.location.href=this.value" class="w-full p-1.5 text-sm border border-gray-300 rounded-md">
-                  <option value="?category=All-Categories{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}" 
-                      {% if request.GET.category == 'All-Categories' or not request.GET.category %}selected{% endif %}>
-                      All Categories
-                  </option>
-                  <option value="?category=jersey{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}" 
-                      {% if request.GET.category == 'jersey' %}selected{% endif %}>
-                      Jersey
-                  </option>
-                  <option value="?category=sepatu{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}" 
-                      {% if request.GET.category == 'sepatu' %}selected{% endif %}>
-                      Sepatu
-                  </option>
-                  <option value="?category=aksesoris{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}" 
-                      {% if request.GET.category == 'aksesoris' %}selected{% endif %}>
-                      Aksesoris
-                  </option>
-                  <option value="?category=bola{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}" 
-                      {% if request.GET.category == 'bola' %}selected{% endif %}>
-                      Bola
-                  </option>
-                  <option value="?category=jaket{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}" 
-                      {% if request.GET.category == 'jaket' %}selected{% endif %}>
-                      Jaket
-                  </option>
-              </select>
+            <h3 class="font-medium mb-2">Categories</h3>
+            <select id="category-select" class="w-full p-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-0">
+              <option value="All-Categories">All Categories</option>
+              <option value="jersey">Jersey</option>
+              <option value="sepatu">Sepatu</option>
+              <option value="aksesoris">Aksesoris</option>
+              <option value="bola">Bola</option>
+              <option value="jaket">Jaket</option>
+            </select>
           </div>
 
           {% if user.is_authenticated %}
@@ -74,24 +74,288 @@
     </div>
 
     <!-- Product Grid -->
-    {% if not product_list %}
-      <div class="bg-white rounded-lg border border-gray-200 p-12 text-center">
-        <div class="w-32 h-32 mx-auto mb-4">
-          <img src="{% static 'image/no-product.png' %}" alt="No product available" class="w-full h-full object-contain">
-        </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No product found</h3>
-        <p class="text-gray-500 mb-6">Be the first to share football product with the community.</p>
-        <a href="{% url 'main:create_product' %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
-          Create Product
-        </a>
-      </div>
-    {% else %}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for product in product_list %}
-          {% include 'card_product.html' with product=product %}
-        {% endfor %}
-      </div>
-    {% endif %}
+    <div id="loading" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">Loading products...</div>
+    <div id="error" class="hidden text-red-700 bg-red-50 border border-red-100 rounded-md p-4"></div>
+    <div id="empty" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">No product found</div>
+    <div id="grid" class="hidden"></div>
   </div>
 </div>
+
+<button
+  onclick="showToast('Sample Title', 'This is a sample message for the toast notification.')"
+>
+  Click to Show Toast
+</button>
+
+<script>
+  const PRODUCTS_API    = "{% url 'main:show_json' %}";
+  const CURRENT_USER_ID = "{{ user.id|default_if_none:'' }}";
+
+  const elLoading = document.getElementById('loading');
+  const elError   = document.getElementById('error');
+  const elEmpty   = document.getElementById('empty');
+  const elGrid    = document.getElementById('grid');
+
+  const typeSelect     = document.getElementById('type-select');
+  const categorySelect = document.getElementById('category-select');
+
+  let allProducts = [];
+  let activeType = 'All-Product';
+  let activeCategory = 'All-Categories';
+
+  function showSections({loading=false, error=false, empty=false, grid=false}) {
+    elLoading.classList.toggle('hidden', !loading);
+    elError.classList.toggle('hidden', !error);
+    elEmpty.classList.toggle('hidden', !empty);
+    elGrid.classList.toggle('hidden', !grid);
+    if (grid) elGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+  }
+
+  function buildCard(p) {
+    const detailLink = `{% url 'main:show_product' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', p.id);
+    const editLink   = `{% url 'main:edit_product' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', p.id);
+    const deleteLink = `{% url 'main:delete_product' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', p.id);
+
+    const art = document.createElement('article');
+    art.className = 'bg-[#F0DFDF] rounded-lg border border-gray-200 hover:shadow-lg hover:scale-105 transition-all duration-300 overflow-hidden flex flex-col';
+
+    const thumb = p.thumbnail
+      ? `<img src="${p.thumbnail}" alt="${p.name}" class="w-full h-full object-cover">`
+      : `<div class="w-full h-full bg-gray-200"></div>`;
+
+    const dateStr = p.created_at ? new Date(p.created_at).toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric'}) : '';
+
+    art.innerHTML = `
+      <div class="aspect-[16/9] relative overflow-hidden">
+        <a href="${detailLink}">${thumb}</a>
+        <div class="absolute top-3 left-3">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-600 text-white">
+            ${p.category}
+          </span>
+        </div>
+        <div class="absolute top-3 right-3 flex space-x-2">
+          ${p.is_featured ? `<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800">Featured</span>` : ''}
+          ${p.product_views > 20 ? `<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">Hot</span>` : ''}
+        </div>
+      </div>
+
+      <div class="p-5 flex flex-col flex-1">
+        <div class="flex items-center text-sm text-gray-500 mb-2">
+          <time>${dateStr}</time>
+          <span class="mx-2">•</span>
+          <span>${p.product_views} views</span>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 leading-snug line-clamp-2">
+          <a href="${detailLink}" class="hover:text-red-700 transition-colors">${p.name}</a>
+        </h3>
+        <div class="mt-2 text-xl font-semibold text-red-700">
+          ${p.price != null ? `Rp${p.price}` : ''}
+        </div>
+        <p class="mt-2 text-gray-600 text-sm leading-relaxed line-clamp-2">
+          ${p.description || ''}
+        </p>
+        <div class="mt-auto pt-4 border-t border-red-100 flex items-center justify-between">
+          <a href="${detailLink}" class="inline-block text-white bg-red-700 hover:bg-red-800 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+            View details
+          </a>
+          ${
+            (CURRENT_USER_ID && String(CURRENT_USER_ID) === String(p.user_id))
+            ? `<div class="flex items-center space-x-2">
+                 <button type="button" class="px-3 py-2 rounded-md text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50" onclick="openEdit('${p.id}')">
+                   Edit
+                 </button>
+                 <button type="button" class="px-3 py-2 rounded-md text-sm font-medium bg-red-600 text-white hover:bg-red-700" onclick="showDeleteModal('${p.id}', \`${p.name?.replace(/`/g, '\\`') || ''}\`)">
+                    Delete
+                  </button>
+               </div>`
+            : ``
+          }
+        </div>
+      </div>
+    `;
+    return art;
+  }
+
+  async function openEdit(id) {
+    try {
+      const detailUrl = `{% url 'main:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', id);
+      const res = await fetch(detailUrl, { headers: { 'Accept': 'application/json' }});
+      if (!res.ok) throw new Error('Failed to fetch product detail');
+
+      const data = await res.json();
+
+      // buka modal dalam mode EDIT
+      showModal('edit', data);
+    } catch (e) {
+      if (typeof showToast === 'function') showToast('Gagal memuat data produk', '', 'error');
+      console.error(e);
+    }
+  }
+
+  function renderProducts(items) {
+    elGrid.innerHTML = '';
+    items.forEach(p => elGrid.appendChild(buildCard(p)));
+  }
+
+  function applyFilters() {
+    let items = [...allProducts];
+
+    // filter tipe (All-Product / My-Product)
+    if (activeType === 'My-Product' && CURRENT_USER_ID) {
+      items = items.filter(p => String(p.user_id) === String(CURRENT_USER_ID));
+    }
+
+    // filter kategori (single atau grup apparel)
+    const cat = activeCategory?.toLowerCase();
+    if (cat && cat !== 'all-categories') {
+      const set = (cat === 'apparel') ? new Set(['jersey','jaket']) : new Set([cat]);
+      items = items.filter(p => set.has(String(p.category || '').toLowerCase()));
+    }
+
+    if (items.length === 0) {
+      showSections({ empty: true });
+    } else {
+      renderProducts(items);
+      showSections({ grid: true });
+    }
+  }
+
+  async function fetchProducts() {
+    try {
+      showSections({ loading: true });
+      const res = await fetch(
+        PRODUCTS_API + `?_=${Date.now()}`,        // cache buster
+        { headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' }, cache: 'no-store' }                     // jangan pakai cache
+      );
+      if (!res.ok) throw new Error('fetch failed');
+      allProducts = await res.json() || [];
+      applyFilters();
+    } catch (e) {
+      elError.textContent = 'Gagal memuat produk dari server.';
+      showSections({ error: true });
+    }
+  }
+
+  async function openEdit(id) {
+    try {
+      const detailUrl = `{% url 'main:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`
+                        .replace('00000000-0000-0000-0000-000000000000', id)
+                        + `?_=${Date.now()}`;     // cache buster
+      const res = await fetch(detailUrl, {
+        headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' },
+        cache: 'no-store'
+      });
+      if (!res.ok) throw new Error('Failed to fetch product detail');
+      const data = await res.json();
+      showModal('edit', data);
+    } catch (e) {
+      if (typeof showToast === 'function') showToast('Gagal memuat data produk', '', 'error');
+      console.error(e);
+    }
+  }
+
+
+  // Event -> perubahan select (tanpa ganti URL)
+  typeSelect?.addEventListener('change', (e) => {
+    activeType = e.target.value || 'All-Product';
+    applyFilters();
+  });
+  categorySelect?.addEventListener('change', (e) => {
+    activeCategory = e.target.value || 'All-Categories';
+    applyFilters();
+  });
+
+  // klik kategori di navbar supaya tetap 1 URL
+  document.querySelectorAll('[data-cat-link]').forEach(a => {
+    a.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      const cat = a.getAttribute('data-cat-link') || 'All-Categories';
+      activeCategory = cat;
+      if (categorySelect) categorySelect.value = cat; // sinkronkan dropdown
+      applyFilters();
+    });
+  });
+
+  document.addEventListener('productAdded', function () {
+    fetchProducts();
+  });
+
+  // saat produk berhasil di-update via modal, refresh grid
+  document.addEventListener('productUpdated', function () {
+    fetchProducts();
+  });
+
+  document.addEventListener('productDeleted', function (e) {
+    fetchProducts();
+  });
+
+  activeType = 'All-Product';
+  activeCategory = 'All-Categories';
+  if (typeSelect) {
+    typeSelect.value = activeType;
+  }
+  if (categorySelect) {
+    categorySelect.value = activeCategory;
+  }
+  fetchProducts();
+
+  // refresh button
+  const refreshBtn   = document.getElementById('refresh-btn');
+  const refreshIcon  = document.getElementById('refresh-icon');
+  const lastSyncSpan = document.getElementById('last-sync');
+  let isRefreshing   = false;
+
+  async function refreshNow() {
+    if (isRefreshing) return;
+    try {
+      isRefreshing = true;
+      refreshBtn.disabled = true;
+      refreshIcon.classList.add('animate-spin');
+
+      await fetchProducts();
+
+      // update label waktu
+      const t = new Date();
+      lastSyncSpan.textContent = `Updated ${t.toLocaleTimeString()}`;
+    } catch (e) {
+      console.error(e);
+      if (typeof showToast === 'function') showToast('Failed to refresh', '', 'error');
+    } finally {
+      isRefreshing = false;
+      refreshBtn.disabled = false;
+      refreshIcon.classList.remove('animate-spin');
+    }
+  }
+  // klik tombol
+  refreshBtn?.addEventListener('click', refreshNow);
+
+  // keyboard shortcut (R) buat refresh cepat
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'r' || e.key === 'R') && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      e.preventDefault();
+      refreshNow();
+    }
+  });
+
+  document.querySelectorAll('[data-cat-link]').forEach(a => {
+    a.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      const cat = a.getAttribute('data-cat-link') || 'All-Categories';
+
+      // set filter
+      activeCategory = cat;
+      if (categorySelect) categorySelect.value = cat;
+      applyFilters();
+
+      // highlight aktif (desktop & mobile)
+      document.querySelectorAll('.cat-link').forEach(el => {
+        el.classList.remove('text-white');
+        el.classList.add('text-white/90');
+      });
+      a.classList.remove('text-white/90');
+      a.classList.add('text-white');
+    });
+  });
+</script>
+
 {% endblock content %}

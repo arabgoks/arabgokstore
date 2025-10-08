@@ -1,0 +1,9 @@
+{% load static %}
+<div
+  id="toast-component"
+  class="fixed bottom-6 right-6 z-50 max-w-sm w-[92vw] sm:w-[360px] px-4 py-3 rounded-lg border shadow bg-white text-gray-900 border-gray-300 opacity-0 translate-y-6 pointer-events-none transition-all duration-300">
+  <h3 id="toast-title" class="font-semibold">ArabgokStore</h3>
+  <p id="toast-message" class="text-sm text-gray-700">Message</p>
+</div>
+
+<script src="{% static 'js/toast.js' %}"></script>
